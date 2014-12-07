@@ -1,9 +1,11 @@
 
-#include <Serial.h>
+// #include <Serial.h>
 #include <EtherCard.h>
 #include <EEPROM.h>
 #include <ArtNet.h>
 #include <FastLED.h>
+#include "ArtNetLED.h"
+
 
 #define DEFAULT_NUM_LEDS 128
 #define DEFAULT_START_ADDRESS 0
@@ -66,11 +68,25 @@ static void setIP(IPConfiguration iptype, const char *ip, const char *subnet)
 
 static void artSend(size_t length, word sport, byte *dip, word dport)
 {
+  /*
+  * What do we send
+  */
+  Serial.print("\nsending...\nlength: ");
+  Serial.println(length);
+  Serial.print("source port: ");
+  Serial.println(sport);
+  ether.printIp("to : ", dip);
+  Serial.print("dest port: ");
+  Serial.println(dport);
+  
+  //
+  // send it
   ether.sendUdp((char*)Ethernet::buffer + UDP_DATA_P, length, sport, dip, dport);
 }
 
 static void callback(unsigned short port, const char *buffer, unsigned short length)
 {
+  Serial.println(F("\nReceving DMX data"));
   if (length < config.startAddress) return;
   if (port != 0) return;
   length -= config.startAddress;
@@ -87,6 +103,21 @@ static void callback(unsigned short port, const char *buffer, unsigned short len
 }
 
 static void artnetPacket(word port, byte ip[4], const char *data, word len) {
+  
+  Serial.print(F("\nReceving UDP packet on port: "));
+  Serial.println(port);
+  /*
+  * decodage du data pour affichage
+  */
+  int opcode = data[8]+(256 * data[9]);
+  Serial.print("OpCode 0x");
+  Serial.print(opcode, HEX);
+  ether.printIp(" from : ", ip);
+  
+  /*
+  *
+  */
+  
   artnet.ProcessPacket(ip, port, data, len);
 }
 
@@ -344,8 +375,8 @@ void loop() {
       sendArtNetPage();
     }  else if (strncmp("GET /led?", (const char *)(Ethernet::buffer + pos), 9) == 0) {
       // Save settings
-      config.connectedLEDs = getIntArg((const char *)(Ethernet::buffer + pos + 11), "leds", config.connectedLEDs);
-      config.startAddress = getIntArg((const char *)(Ethernet::buffer + pos + 11), "address", config.startAddress + 1) - 1;
+      config.connectedLEDs = getIntArg((const char *)(Ethernet::buffer + pos + 8), "leds", config.connectedLEDs);
+      config.startAddress = getIntArg((const char *)(Ethernet::buffer + pos + 8), "address", config.startAddress + 1) - 1;     
       saveConfig();
       
       // Send page with new settings
