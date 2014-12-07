@@ -610,12 +610,21 @@ void ArtNet::SendPoll(unsigned char force)
 		this->ArtNetCounter++;
 	}
 
+/*
+ * 
 	if (this->ArtNetDiagnosticStatus & ARTNET_DIAGNOSTIC_BROADCAST) {
 		destIp = this->broadcastIP;
 	} else {
 		destIp = this->serverIP;
 	}
-
+ *
+ */
+	if (this->ArtNetDiagnosticStatus & ARTNET_DIAGNOSTIC_BROADCAST) {
+		destIp = this->serverIP;
+	} else {
+		destIp = this->broadcastIP;
+	}
+ 
     // Magic
     memcpy(&this->buffer[length], ArtNetMagic, sizeof(ArtNetMagic));
     length += sizeof(ArtNetMagic);

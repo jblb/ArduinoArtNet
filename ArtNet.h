@@ -35,7 +35,8 @@
 // Port to listen on
 #define UDP_PORT_ARTNET       6454  /* (0x1936) */
 // Port to reply on
-#define UDP_PORT_ARTNET_REPLY (UDP_PORT_ARTNET + 1)
+// #define UDP_PORT_ARTNET_REPLY (UDP_PORT_ARTNET + 1)
+#define UDP_PORT_ARTNET_REPLY (UDP_PORT_ARTNET)
 
 typedef enum ArtNetPortTypeTag {
     ARTNET_OFF,
