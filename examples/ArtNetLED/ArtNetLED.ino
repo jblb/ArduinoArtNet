@@ -1,10 +1,15 @@
 
+
 // #include <Serial.h>
 #include <EtherCard.h>
 #include <EEPROM.h>
 #include <ArtNet.h>
 #include <FastLED.h>
 #include "ArtNetLED.h"
+
+#ifdef NANODE
+#include <NanodeMAC.h>  // github.com/thiseldo/NanodeMAC.git
+#endif
 
 
 #define DEFAULT_NUM_LEDS 128
@@ -18,7 +23,12 @@
 CRGB *leds;
 
 // Set a different MAC address for each...
+#ifdef NANODE
+static uint8_t mymac[6] = { 0,0,0,0,0,0 };
+#else
 static byte mymac[] = { 0x74, 0x69, 0x69, 0x2D, 0x30, 0x32 };
+#endif
+
 byte Ethernet::buffer[600]; // tcp/ip send and receive buffer
 
 struct Config {
@@ -29,6 +39,12 @@ struct Config {
     unsigned short startAddress;
     byte valid;
 } config;
+
+
+#ifdef NANODE
+// get Nanode MAC
+NanodeMAC mac( mymac );
+#endif
 
 ArtNet artnet(mymac, sizeof(config) + 1, Ethernet::buffer + UDP_DATA_P, sizeof(Ethernet::buffer) - UDP_DATA_P, setIP, artSend, callback, PORTS);
 
