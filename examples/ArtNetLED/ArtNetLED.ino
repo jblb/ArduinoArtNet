@@ -167,7 +167,10 @@ void setup() {
     if (!ether.dhcpSetup())
       Serial.println(F("DHCP Failed..."));
     ether.printIp("IP: ", ether.myip);
+    ether.printIp("NM: ", ether.netmask);
     ether.printIp("GW: ", ether.gwip);
+    ether.printIp("BC: ", ether.broadcastip);
+    
   } else if (config.iptype == CUSTOM) {
     Serial.println(F("Configuring node with custom IP"));
     ether.staticSetup(config.ip, config.gateway);
