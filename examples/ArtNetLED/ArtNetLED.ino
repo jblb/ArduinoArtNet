@@ -11,6 +11,8 @@
 #include <NanodeMAC.h>  // github.com/thiseldo/NanodeMAC.git
 #endif
 
+//set this to 1 to print messages to serial, 0 to skip
+#define verbose 1;
 
 #define DEFAULT_NUM_LEDS 128
 #define DEFAULT_START_ADDRESS 0
@@ -32,12 +34,12 @@ static byte mymac[] = { 0x74, 0x69, 0x69, 0x2D, 0x30, 0x32 };
 byte Ethernet::buffer[600]; // tcp/ip send and receive buffer
 
 struct Config {
-    IPConfiguration iptype;
-    byte ip[4];
-    byte gateway[4];
-    unsigned short connectedLEDs;
-    unsigned short startAddress;
-    byte valid;
+	IPConfiguration iptype;
+	byte ip[4];
+	byte gateway[4];
+	unsigned short connectedLEDs;
+	unsigned short startAddress;
+	byte valid;
 } config;
 
 
@@ -52,9 +54,9 @@ ArtNet artnet(mymac, sizeof(config) + 1, Ethernet::buffer + UDP_DATA_P, sizeof(E
 void(* resetFunc) (void) = 0; 
 
 static void saveConfig() {
-  for (unsigned short i = 0; i < sizeof(config); ++i) {
-    EEPROM.write(i, ((byte*)&config)[i]);
-  }
+	for (unsigned short i = 0; i < sizeof(config); ++i) {
+		EEPROM.write(i, ((byte*)&config)[i]);
+	}
 }
 
 static void loadConfig() {
@@ -84,126 +86,174 @@ static void setIP(IPConfiguration iptype, const char *ip, const char *subnet)
 
 static void artSend(size_t length, word sport, byte *dip, word dport)
 {
-  /*
-  * What do we send
-  */
-  Serial.print("\nsending...\nlength: ");
-  Serial.println(length);
-  Serial.print("source port: ");
-  Serial.println(sport);
-  ether.printIp("to : ", dip);
-  Serial.print("dest port: ");
-  Serial.println(dport);
-  
-  //
-  // send it
-  ether.sendUdp((char*)Ethernet::buffer + UDP_DATA_P, length, sport, dip, dport);
+	/*
+	* What do we send
+	*/
+#ifdef verbose
+	Serial.print("\nsending...\nlength: ");
+	Serial.println(length);
+	Serial.print("source port: ");
+	Serial.println(sport);
+	ether.printIp("to : ", dip);
+	Serial.print("dest port: ");
+	Serial.println(dport);
+#endif
+
+	//
+	// send it
+	ether.sendUdp((char*)Ethernet::buffer + UDP_DATA_P, length, sport, dip, dport);
 }
 
 static void callback(unsigned short port, const char *buffer, unsigned short length)
 {
-  Serial.println(F("\nReceving DMX data"));
-  if (length < config.startAddress) return;
-  if (port != 0) return;
-  length -= config.startAddress;
-  buffer = buffer + config.startAddress;
-  length = length / 3;
-  if (length > config.connectedLEDs) length = config.connectedLEDs;
-  for (int i = 0; i < length; ++i)
-  {
-    leds[i].r = buffer[i * 3];
-    leds[i].g = buffer[i * 3 + 1];
-    leds[i].b = buffer[i * 3 + 2];
-  }
-  FastSPI_LED.show();
+#ifdef verbose
+	Serial.println(F("\nReceving DMX data"));
+#endif
+	if (length < config.startAddress) return;
+	if (port != 0) return;
+	length -= config.startAddress;
+	buffer = buffer + config.startAddress;
+	length = length / 3;
+	if (length > config.connectedLEDs) length = config.connectedLEDs;
+	for (int i = 0; i < length; ++i) {
+		leds[i].r = buffer[i * 3];
+		leds[i].g = buffer[i * 3 + 1];
+		leds[i].b = buffer[i * 3 + 2];
+	}
+	FastSPI_LED.show();
 }
 
 static void artnetPacket(word port, byte ip[4], const char *data, word len) {
-  
-  Serial.print(F("\nReceving UDP packet on port: "));
-  Serial.println(port);
-  /*
-  * decodage du data pour affichage
-  */
-  int opcode = data[8]+(256 * data[9]);
-  Serial.print("OpCode 0x");
-  Serial.print(opcode, HEX);
-  ether.printIp(" from : ", ip);
-  
-  /*
-  *
-  */
-  
-  artnet.ProcessPacket(ip, port, data, len);
+
+#ifdef verbose
+	Serial.print(F("\nReceving UDP packet on port: "));
+	Serial.println(port);
+	/*
+	* decodage du data pour affichage
+	*/
+	int opcode = data[8]+(256 * data[9]);
+	Serial.print("OpCode 0x");
+	Serial.print(opcode, HEX);
+	ether.printIp(" from : ", ip);
+#endif
+	artnet.ProcessPacket(ip, port, data, len);
 }
 
 void setup() {
-  Serial.begin(57600);
-  Serial.println(F("\nBooting"));
+#ifdef verbose
+	Serial.begin(57600);
+	Serial.println(F("\nBooting"));
+#endif
   
-  // Load configuration
-  Serial.println(F("Loading configuration"));
-  loadConfig();
+	// Load configuration
+#ifdef verbose
+	Serial.println(F("Loading configuration"));
+#endif
+	loadConfig();
   
-  // Setup LEDS
-  Serial.println(F("Configuring LEDs"));
-  leds = new CRGB[config.connectedLEDs];
-  FastLED.addLeds<CHIPSET, DATA_PIN, COLOUR_ORDER>(leds, config.connectedLEDs);
+	// Setup LEDS
+#ifdef verbose
+	Serial.println(F("Configuring LEDs"));
+#endif
+	leds = new CRGB[config.connectedLEDs];
+	FastLED.addLeds<CHIPSET, DATA_PIN, COLOUR_ORDER>(leds, config.connectedLEDs);
   
-  Serial.println(F("Initialising LEDs"));
+#ifdef verbose
+	Serial.println(F("Initialising LEDs"));
+	Serial.println(F("Clearing LEDs"));
+#endif
+	memset(leds, 0, sizeof(CRGB) * config.connectedLEDs);
+	FastLED.show();
   
-  Serial.println(F("Clearing LEDs"));
-  memset(leds, 0, sizeof(CRGB) * config.connectedLEDs);
-  FastLED.show();
-  
-  // Startup ethernet
-  Serial.println(F("Initialising ENC28J60"));
-  if (ether.begin(sizeof(Ethernet::buffer), mymac) == 0) 
-    Serial.println(F("Failed to access Ethernet controller"));
+	// Startup ethernet
+#ifdef verbose
+	Serial.println(F("Initialising ENC28J60"));
+#endif
+	if (ether.begin(sizeof(Ethernet::buffer), mymac) == 0) {
+#ifdef verbose
+	Serial.println(F("Failed to access Ethernet controller"));
+#endif
+	// no point in carrying on, so do nothing forevermore:
+	for(;;)
+		;
+    }
     
   // Configure IP address
-  if (config.iptype == DHCP) {
-    Serial.println(F("Configuring node as DHCP"));
-    if (!ether.dhcpSetup())
-      Serial.println(F("DHCP Failed..."));
-    ether.printIp("IP: ", ether.myip);
-    ether.printIp("NM: ", ether.netmask);
-    ether.printIp("GW: ", ether.gwip);
-    ether.printIp("BC: ", ether.broadcastip);
-    
-  } else if (config.iptype == CUSTOM) {
-    Serial.println(F("Configuring node with custom IP"));
-    ether.staticSetup(config.ip, config.gateway);
-    ether.printIp("IP: ", ether.myip);
-    ether.printIp("GW: ", ether.gwip);
-  } else if (config.iptype == PRIMARY) {
-    byte ip[] = {2, mymac[3]+OEM_HI+OEM_LO, mymac[4], mymac[5]};
-    byte gwy[] = {2, 0, 0, 1};
-    Serial.println(F("Configuring node with primary IP"));
-    ether.staticSetup(ip, gwy);
-    ether.printIp("IP: ", ether.myip);
-    ether.printIp("GW: ", ether.gwip);
-  } else if (config.iptype == SECONDARY) {
-    byte ip[] = {10, mymac[3]+OEM_HI+OEM_LO, mymac[4], mymac[5]};
-    byte gwy[] = {10, 0, 0, 1};
-    Serial.println(F("Configuring node with secondary IP"));
-    ether.staticSetup(ip, gwy);
-    ether.printIp("IP: ", ether.myip);
-    ether.printIp("GW: ", ether.gwip);
-  } else {
-    Serial.println(F("loadConfig() is doing its job wrong"));
-  }
-  
-  Serial.println(F("Configuring ArtNet"));
-  artnet.Configure(config.iptype == DHCP, ether.myip);
-  
-  // Register listener
-  Serial.println(F("Listening on ArtNet"));
-  /* Also need to change line 110 of tcpip.cpp to:
+	if (config.iptype == DHCP) {
+#ifdef verbose
+		Serial.println(F("Configuring node as DHCP"));
+#endif
+		if (!ether.dhcpSetup()){
+#ifdef verbose
+			Serial.println(F("DHCP Failed..."));
+#endif
+			for(;;)
+				;
+		}
+#ifdef verbose 
+		ether.printIp("IP: ", ether.myip);
+		ether.printIp("NM: ", ether.netmask);
+		ether.printIp("GW: ", ether.gwip);
+		ether.printIp("BC: ", ether.broadcastip);
+#endif
+	}
+
+	else if (config.iptype == CUSTOM) {
+#ifdef verbose 
+		Serial.println(F("Configuring node with custom IP"));
+#endif
+		ether.staticSetup(config.ip, config.gateway);
+#ifdef verbose
+		ether.printIp("IP: ", ether.myip);
+		ether.printIp("GW: ", ether.gwip);
+#endif
+	}
+	else if (config.iptype == PRIMARY) {
+		byte ip[] = {2, mymac[3]+OEM_HI+OEM_LO, mymac[4], mymac[5]};
+		byte gwy[] = {2, 0, 0, 1};
+#ifdef verbose
+		Serial.println(F("Configuring node with primary IP"));
+#endif
+		ether.staticSetup(ip, gwy);
+#ifdef verbose
+		ether.printIp("IP: ", ether.myip);
+		ether.printIp("GW: ", ether.gwip);
+#endif
+	}
+	else if (config.iptype == SECONDARY) {
+		byte ip[] = {10, mymac[3]+OEM_HI+OEM_LO, mymac[4], mymac[5]};
+		byte gwy[] = {10, 0, 0, 1};
+#ifdef verbose
+		Serial.println(F("Configuring node with secondary IP"));
+#endif
+		ether.staticSetup(ip, gwy);
+#ifdef verbose
+		ether.printIp("IP: ", ether.myip);
+		ether.printIp("GW: ", ether.gwip);
+#endif
+	}
+	else {
+#ifdef verbose
+		Serial.println(F("loadConfig() is doing its job wrong"));
+#endif
+		for(;;)
+			;
+	}
+#ifdef verbose
+	Serial.println(F("Configuring ArtNet"));
+#endif
+	artnet.Configure(config.iptype == DHCP, ether.myip);
+
+	// Register listener
+#ifdef verbose
+	Serial.println(F("Listening on ArtNet"));
+#endif
+	/* Also need to change line 110 of tcpip.cpp to:
                        (memcmp(gPB + IP_DST_P, EtherCard::myip, 4) == 0 
                           || gPB[IP_DST_P + 3] == 0xff); */
-  ether.enableBroadcast();
-  ether.udpServerListenOnPort(&artnetPacket, UDP_PORT_ARTNET);
+
+	ether.enableBroadcast();
+	ether.udpServerListenOnPort(&artnetPacket, UDP_PORT_ARTNET);
 }
 
 char statusPage[] PROGMEM =
