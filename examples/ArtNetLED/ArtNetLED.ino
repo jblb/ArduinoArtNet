@@ -4,7 +4,7 @@
 #include <EtherCard.h>
 #include <EEPROM.h>
 #include <ArtNet.h>
-#include <FastLED.h>
+#include <FastLED.h>  // http://fastled.io/
 #include "ArtNetLED.h"
 
 #ifdef NANODE
@@ -17,10 +17,11 @@
 #define DEFAULT_NUM_LEDS 128
 #define DEFAULT_START_ADDRESS 0
 #define PORTS 1 // Number of ports to use
-#define CHIPSET TM1809
+#define CHIPSET WS2801  // #define CHIPSET TM1809
 #define COLOUR_ORDER RGB
 
-#define DATA_PIN A5
+#define DATA_PIN 2
+#define CLOCK_PIN 3
 
 CRGB *leds;
 
@@ -120,6 +121,12 @@ static void callback(unsigned short port, const char *buffer, unsigned short len
         leds[i].r = buffer[i * 3];
         leds[i].g = buffer[i * 3 + 1];
         leds[i].b = buffer[i * 3 + 2];
+#ifdef verbose
+		Serial.print(F("\nled["));
+		Serial.print(i);
+		Serial.print(F("].r: "));
+		Serial.println(leds[i].r);
+#endif        
     }
     FastSPI_LED.show();
 }
@@ -157,7 +164,7 @@ void setup() {
     Serial.println(F("Configuring LEDs"));
 #endif
     leds = new CRGB[config.connectedLEDs];
-    FastLED.addLeds<CHIPSET, DATA_PIN, COLOUR_ORDER>(leds, config.connectedLEDs);
+    FastLED.addLeds<CHIPSET, DATA_PIN, CLOCK_PIN, COLOUR_ORDER>(leds, config.connectedLEDs);
 
 #ifdef verbose
     Serial.println(F("Initialising LEDs"));
