@@ -107,7 +107,8 @@ static void artSend(size_t length, word sport, byte *dip, word dport)
 static void callback(unsigned short port, const char *buffer, unsigned short length)
 {
 #ifdef verbose
-	Serial.println(F("\nReceving DMX data"));
+	Serial.print(F("\nReceving DMX data for port: "));
+	Serial.println(port);
 #endif
 	if (length < config.startAddress) return;
 	if (port != 0) return;

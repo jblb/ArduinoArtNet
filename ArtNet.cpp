@@ -93,6 +93,7 @@ ArtNet::ArtNet(byte *mac, byte eepromaddress, byte *buffer, word buflen, void (*
     if (ports > MAX_PORTS) {
         ports = MAX_PORTS;
     }
+    this->Ports = ports;
     
     unsigned char i;
     unsigned char v;
