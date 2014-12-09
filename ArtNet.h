@@ -40,35 +40,35 @@
 
 typedef enum ArtNetPortTypeTag {
     ARTNET_OFF,
-	ARTNET_IN,
-	ARTNET_OUT
+    ARTNET_IN,
+    ARTNET_OUT
 } ArtNetPortType;
 
 typedef enum { PRIMARY = 0, SECONDARY, DHCP, CUSTOM } IPConfiguration;
 
 typedef enum ArtNetStatusTag
 {
-	ARTNET_STATUS_DEBUG = 0x0000,
-	ARTNET_STATUS_POWER_OK = 0x0001,
-	ARTNET_STATUS_POWER_FAIL = 0x0002,
-	ARTNET_STATUS_READ_FAIL = 0x0003,
-	ARTNET_STATUS_PARSE_FAIL = 0x0004,
-	ARTNET_STATUS_WRITE_FAIL = 0x0005,
-	ARTNET_STATUS_SHORT_NAME_SUCCESS = 0x0006,
-	ARTNET_STATUS_LONG_NAME_SUCCESS = 0x0007,
-	ARTNET_STATUS_DMX_ERRORS = 0x0008,
-	ARTNET_STATUS_WRITE_BUFFER_FULL = 0x0009,
-	ARTNET_STATUS_READ_BUFFER_FULL = 0x000a,
-	ARTNET_STATUS_UNIVERSE_CONFLICT = 0x000b,
-	ARTNET_STATUS_CONFIGURATION_FAIL = 0x000c,
-	ARTNET_STATUS_DMX_OUTPUT_SHORT = 0x000d,
-	ARTNET_STATUS_FIRMWARE_FAIL = 0x000e,
-	ARTNET_STATIS_USER_FAIL = 0x000f
+    ARTNET_STATUS_DEBUG = 0x0000,
+    ARTNET_STATUS_POWER_OK = 0x0001,
+    ARTNET_STATUS_POWER_FAIL = 0x0002,
+    ARTNET_STATUS_READ_FAIL = 0x0003,
+    ARTNET_STATUS_PARSE_FAIL = 0x0004,
+    ARTNET_STATUS_WRITE_FAIL = 0x0005,
+    ARTNET_STATUS_SHORT_NAME_SUCCESS = 0x0006,
+    ARTNET_STATUS_LONG_NAME_SUCCESS = 0x0007,
+    ARTNET_STATUS_DMX_ERRORS = 0x0008,
+    ARTNET_STATUS_WRITE_BUFFER_FULL = 0x0009,
+    ARTNET_STATUS_READ_BUFFER_FULL = 0x000a,
+    ARTNET_STATUS_UNIVERSE_CONFLICT = 0x000b,
+    ARTNET_STATUS_CONFIGURATION_FAIL = 0x000c,
+    ARTNET_STATUS_DMX_OUTPUT_SHORT = 0x000d,
+    ARTNET_STATUS_FIRMWARE_FAIL = 0x000e,
+    ARTNET_STATIS_USER_FAIL = 0x000f
 } ArtNetStatus_t;
 
 class ArtNet
 {
-  private:
+private:
     byte *ip;
     byte *mac;
     byte dhcp;
@@ -95,7 +95,7 @@ class ArtNet
     ArtNetPortType ArtNetInputEnable[MAX_PORTS];
     unsigned char ArtNetSubnet;
 
-  public:
+public:
     ArtNet(byte *mac, byte eepromaddress, byte *buffer, word buflen, void (*setIP)(IPConfiguration, const char*, const char*), void (*sendFunc)(size_t, word, byte*, word), void (*callback)(unsigned short, const char *, unsigned short), unsigned char ports);
     void Configure(byte dhcp, byte *ip);
     ArtNetPortType PortType(unsigned char port);
@@ -112,7 +112,7 @@ class ArtNet
     void SetSubnet(unsigned char subnet);
     unsigned int GetPacketCount();
     unsigned int GetFailCount();
-  private:
+private:
     void processPoll(byte ip[4], word port, const char *data, word len);
     void processAddress(byte ip[4], word port, const char *data, word len);
     void processInput(byte ip[4], word port, const char *data, word len);

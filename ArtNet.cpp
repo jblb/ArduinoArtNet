@@ -28,58 +28,58 @@
 
 typedef enum ArtNetOpCodeTag
 {
-	ARTNET_OP_POLL = 0x2000,
-	ARTNET_OP_POLL_REPLY = 0x2100,
-	ARTNET_OP_DIAG_DATA = 0x2300,
-	ARTNET_OP_OUTPUT = 0x5000,
-	ARTNET_OP_ADDRESS = 0x6000,
-	ARTNET_OP_INPUT = 0x7000,
-	ARTNET_OP_TOD_REQUEST = 0x8000,
-	ARTNET_OP_TOD_DATA = 0x8100,
-	ARTNET_OP_TOD_CONTROL = 0x8200,
-	ARTNET_OP_RDM = 0x8300,
-	ARTNET_OP_RDM_SUB = 0x8400,
-	ARTNET_OP_VIDEO_SETUP = 0xa010,
-	ARTNET_OP_VIDEO_PALETTE = 0xa020,
-	ARTNET_OP_VIDEO_DATA = 0xa040,
-	ARTNET_OP_MAC_MASTER = 0xf000,
-	ARTNET_OP_MAC_SLAVE = 0xf100,
-	ARTNET_OP_FIRMWARE_MASTER = 0xf200,
-	ARTNET_OP_FIRMWARE_REPLY = 0xf300,
-	ARTNET_OP_IP_PROG = 0xf800,
-	ARTNET_OP_IP_PROG_REPLY = 0xf900,
-	ARTNET_OP_MEDIA = 0x9000,
-	ARTNET_OP_MEDIA_PATCH = 0x9100,
-	ARTNET_OP_MEDIA_CONTROL = 0x9200,
-	ARTNET_OP_MEDIA_CONTROL_REPLY = 0x9300,
-	ARTNET_OP_TIMECODE = 0x9700,
+    ARTNET_OP_POLL = 0x2000,
+    ARTNET_OP_POLL_REPLY = 0x2100,
+    ARTNET_OP_DIAG_DATA = 0x2300,
+    ARTNET_OP_OUTPUT = 0x5000,
+    ARTNET_OP_ADDRESS = 0x6000,
+    ARTNET_OP_INPUT = 0x7000,
+    ARTNET_OP_TOD_REQUEST = 0x8000,
+    ARTNET_OP_TOD_DATA = 0x8100,
+    ARTNET_OP_TOD_CONTROL = 0x8200,
+    ARTNET_OP_RDM = 0x8300,
+    ARTNET_OP_RDM_SUB = 0x8400,
+    ARTNET_OP_VIDEO_SETUP = 0xa010,
+    ARTNET_OP_VIDEO_PALETTE = 0xa020,
+    ARTNET_OP_VIDEO_DATA = 0xa040,
+    ARTNET_OP_MAC_MASTER = 0xf000,
+    ARTNET_OP_MAC_SLAVE = 0xf100,
+    ARTNET_OP_FIRMWARE_MASTER = 0xf200,
+    ARTNET_OP_FIRMWARE_REPLY = 0xf300,
+    ARTNET_OP_IP_PROG = 0xf800,
+    ARTNET_OP_IP_PROG_REPLY = 0xf900,
+    ARTNET_OP_MEDIA = 0x9000,
+    ARTNET_OP_MEDIA_PATCH = 0x9100,
+    ARTNET_OP_MEDIA_CONTROL = 0x9200,
+    ARTNET_OP_MEDIA_CONTROL_REPLY = 0x9300,
+    ARTNET_OP_TIMECODE = 0x9700,
 }
 ArtNetOpCode;
 
 typedef struct
 {
-	ArtNetOpCode opcode;
-	
-	uint8_t protocol_hi;
-	uint8_t protocol_lo;
+    ArtNetOpCode opcode;
+
+    uint8_t protocol_hi;
+    uint8_t protocol_lo;
 }
 artnetheader_t;
 
 typedef enum ArtNetPriorityTag
 {
-	ARTNET_DIAGNOSTIC_LOW = 0x10,
-	ARTNET_DIAGNOSTIC_MED = 0x40,
-	ARTNET_DIAGNOSTIC_HIGH = 0x80,
-	ARTNET_DIAGNOSTIC_CRITICAL = 0xe0,
-	ARTNET_DIAGNOSTIC_VOLATILE = 0xff
+    ARTNET_DIAGNOSTIC_LOW = 0x10,
+    ARTNET_DIAGNOSTIC_MED = 0x40,
+    ARTNET_DIAGNOSTIC_HIGH = 0x80,
+    ARTNET_DIAGNOSTIC_CRITICAL = 0xe0,
+    ARTNET_DIAGNOSTIC_VOLATILE = 0xff
 }
 ArtNetPriority;
 
 typedef enum ArtNetTalkToMeTag
 {
-	ARTNET_DIAGNOSTIC_BROADCAST = (1 << 3),  // Set if ArtNetPollReply should broadcast
-	ARTNET_DIAGNOSTIC_SEND = (1 << 2),       // Set if diagnostic messages should be sent
-	ARTNET_DIAGNOSTIC_ALWAYS = (1 << 1)      // Set if ArtNetPollReply should be sent whenever changes occur
+    ARTNET_DIAGNOSTIC_BROADCAST = (1 << 3),  // Set if ArtNetPollReply should broadcast
+    ARTNET_DIAGNOSTIC_SEND = (1 << 2),       // Set if diagnostic messages should be sent
+    ARTNET_DIAGNOSTIC_ALWAYS = (1 << 1)      // Set if ArtNetPollReply should be sent whenever changes occur
 }
 ArtNetTalkToMe;
 
@@ -94,10 +94,10 @@ ArtNet::ArtNet(byte *mac, byte eepromaddress, byte *buffer, word buflen, void (*
         ports = MAX_PORTS;
     }
     this->Ports = ports;
-    
+
     unsigned char i;
     unsigned char v;
-    
+
     this->broadcastIP[0] = 255;
     this->broadcastIP[1] = 255;
     this->broadcastIP[2] = 255;
@@ -108,13 +108,13 @@ ArtNet::ArtNet(byte *mac, byte eepromaddress, byte *buffer, word buflen, void (*
     this->serverIP[3] = 255;
     this->mac = mac;
     this->eepromaddress = eepromaddress;
-    
+
     this->buffer = buffer;
     this->buflen = buflen;
     this->sendFunc = sendFunc;
     this->callback = callback;
     this->setIP = setIP;
-    
+
     this->ArtNetDiagnosticPriority = ARTNET_DIAGNOSTIC_CRITICAL;
     this->ArtNetDiagnosticStatus = ARTNET_DIAGNOSTIC_BROADCAST | ARTNET_DIAGNOSTIC_SEND | ARTNET_DIAGNOSTIC_ALWAYS;
     this->ArtNetCounter = 0;
@@ -127,7 +127,7 @@ ArtNet::ArtNet(byte *mac, byte eepromaddress, byte *buffer, word buflen, void (*
     if (this->ArtNetSubnet == 0xff) this->ArtNetSubnet = 0;
     this->ArtNetInCounter = 0;
     this->ArtNetFailCounter = 0;
-    
+
     memset(this->ArtNetInputPortStatus, 0, MAX_PORTS);
     memset(this->ArtNetOutputPortStatus, 0, MAX_PORTS);
     for (i = 0; i < MAX_PORTS; ++i) {
@@ -144,7 +144,7 @@ ArtNet::ArtNet(byte *mac, byte eepromaddress, byte *buffer, word buflen, void (*
         }
         this->ArtNetInputEnable[i] = (ArtNetPortType)EEPROM.read(eepromaddress + 1 + 18 + 64 + 2 + MAX_PORTS + MAX_PORTS + i);
     }
-    
+
     /* Clear names if uninitialised */
     if (v != 253) {
         for (i = 0; i < 18; ++i) {
@@ -171,10 +171,10 @@ void ArtNet::PortType(unsigned char port, ArtNetPortType type)
 void ArtNet::Configure(byte dhcp, byte* ip)
 {
     unsigned char i;
-    
+
     this->ip = ip;
     this->dhcp = dhcp;
-    
+
     if (EEPROM.read(eepromaddress + 1 + 18 + 64 + 1) == 1) {
         // Reboot due to IP change
         EEPROM.write(eepromaddress + 1 + 18 + 64 + 1, 0);
@@ -186,7 +186,7 @@ void ArtNet::Configure(byte dhcp, byte* ip)
         for (i = 0; i < 2; ++i) {
             ((byte*)&sendPort)[i] = EEPROM.read(eepromaddress + 1 + 18 + 64 + 2 + MAX_PORTS * 3 + 4 + i);
         }
-    	this->sendIPProgReply(sendIp, sendPort);
+        this->sendIPProgReply(sendIp, sendPort);
     } else {
         // Standard boot
         this->SendPoll(1);
@@ -269,112 +269,112 @@ unsigned int ArtNet::GetFailCount()
 
 void ArtNet::processPoll(byte ip[4], word port, const char *data, word len)
 {
-	// Read data
-	data += sizeof(artnetheader_t) + sizeof(ArtNetMagic);
-	
-	memcpy(&this->serverIP, ip, 4);
+    // Read data
+    data += sizeof(artnetheader_t) + sizeof(ArtNetMagic);
 
-	this->ArtNetDiagnosticStatus = data[0];
-	this->ArtNetDiagnosticPriority = data[1];
+    memcpy(&this->serverIP, ip, 4);
+
+    this->ArtNetDiagnosticStatus = data[0];
+    this->ArtNetDiagnosticPriority = data[1];
 
     this->SendPoll(1);
 }
 
 void ArtNet::processAddress(byte ip[4], word port, const char *data, word len)
 {
-	unsigned char i;
-	
-	// Read data
-	data += sizeof(artnetheader_t) + sizeof(ArtNetMagic);
+    unsigned char i;
 
-	// Set the short name
-	// Check if the name is null
+    // Read data
+    data += sizeof(artnetheader_t) + sizeof(ArtNetMagic);
+
+    // Set the short name
+    // Check if the name is null
     if (data[2]) {
-    	// Let's set the short name
-	    for (i = 0; i < 18; ++i)
-	        EEPROM.write(this->eepromaddress + 1 + i, data[2 + i]);
+        // Let's set the short name
+        for (i = 0; i < 18; ++i)
+            EEPROM.write(this->eepromaddress + 1 + i, data[2 + i]);
     }
-	
-	// Set the long name
-	// Check if the name is null
+
+    // Set the long name
+    // Check if the name is null
     if (data[19]) {
-    	// Let's set the short name
-	    for (i = 0; i < 18; ++i)
-	        EEPROM.write(this->eepromaddress + 1 + 18 + i, data[2 + 18 + i]);
+        // Let's set the short name
+        for (i = 0; i < 18; ++i)
+            EEPROM.write(this->eepromaddress + 1 + 18 + i, data[2 + 18 + i]);
     }
-    
+
     // Set input universes
     for (i = 0; i < MAX_PORTS; i++) {
-		if (data[64 + 19 + 1 + i] != 0x7f && (data[64 + 19 + 1 + i] & (1 << 7))) {
-			unsigned char t;
-			// Only set if bit 7 is high
-			t = data[64 + 19 + 1 + i] & ~(1 << 7);
-			if (this->ArtNetInputUniverse[i] != t) {
-				this->ArtNetInputUniverse[i] = t;
-				EEPROM.write(this->eepromaddress + 1 + 18 + 64 + 2 + i, t);
-			}
-		}
+        if (data[64 + 19 + 1 + i] != 0x7f && (data[64 + 19 + 1 + i] & (1 << 7))) {
+            unsigned char t;
+            // Only set if bit 7 is high
+            t = data[64 + 19 + 1 + i] & ~(1 << 7);
+            if (this->ArtNetInputUniverse[i] != t) {
+                this->ArtNetInputUniverse[i] = t;
+                EEPROM.write(this->eepromaddress + 1 + 18 + 64 + 2 + i, t);
+            }
+        }
     }
-    
+
     // Set output universes
     for (i = 0; i < MAX_PORTS; i++) {
-		if (data[64 + 19 + 1 + ARTNET_PORTS + i] != 0x7f && (data[64 + 19 + 1 + ARTNET_PORTS + i] & (1 << 7))) {
-			unsigned char t;
-			// Only set if bit 7 is high
-			t = data[64 + 19 + 1 + ARTNET_PORTS + i] & ~(1 << 7);
-			if (this->ArtNetOutputUniverse[i] != t) {
-				this->ArtNetOutputUniverse[i] = t;
-				EEPROM.write(this->eepromaddress + 1 + 18 + 64 + 2 + MAX_PORTS + i, t);
-			}
-		}
+        if (data[64 + 19 + 1 + ARTNET_PORTS + i] != 0x7f && (data[64 + 19 + 1 + ARTNET_PORTS + i] & (1 << 7))) {
+            unsigned char t;
+            // Only set if bit 7 is high
+            t = data[64 + 19 + 1 + ARTNET_PORTS + i] & ~(1 << 7);
+            if (this->ArtNetOutputUniverse[i] != t) {
+                this->ArtNetOutputUniverse[i] = t;
+                EEPROM.write(this->eepromaddress + 1 + 18 + 64 + 2 + MAX_PORTS + i, t);
+            }
+        }
     }
-    
+
     // Set subnet
-	if (data[64 + 19 + 1 + ARTNET_PORTS + ARTNET_PORTS] != 0x7f && data[64 + 19 + 1 + ARTNET_PORTS + ARTNET_PORTS] & (1 << 7)) {
-		unsigned char t;
-		t = data[64 + 19 + 1 + ARTNET_PORTS + ARTNET_PORTS] & ~(1 << 7);
-		if (this->ArtNetSubnet != t) {
-			this->ArtNetSubnet = t;
-			EEPROM.write(this->eepromaddress + 1 + 18 + 64, t);
-		}
-	}
-	
+    if (data[64 + 19 + 1 + ARTNET_PORTS + ARTNET_PORTS] != 0x7f && data[64 + 19 + 1 + ARTNET_PORTS + ARTNET_PORTS] & (1 << 7)) {
+        unsigned char t;
+        t = data[64 + 19 + 1 + ARTNET_PORTS + ARTNET_PORTS] & ~(1 << 7);
+        if (this->ArtNetSubnet != t) {
+            this->ArtNetSubnet = t;
+            EEPROM.write(this->eepromaddress + 1 + 18 + 64, t);
+        }
+    }
+
     // Command - mostly ignored because we don't support any merging
-	switch (data[64 + 19 + 1 + ARTNET_PORTS + ARTNET_PORTS + 2]) {
-		case 0x90:
-		case 0x91:
-		case 0x92: {
-			unsigned char t;
-			t = data[64 + 19 + 1 + ARTNET_PORTS + ARTNET_PORTS + 2] & 0x3;
-			// Reset data on port t
-			break;
-		}
-	}
-	
-	this->SendPoll(1);
+    switch (data[64 + 19 + 1 + ARTNET_PORTS + ARTNET_PORTS + 2]) {
+    case 0x90:
+    case 0x91:
+    case 0x92: {
+        unsigned char t;
+        t = data[64 + 19 + 1 + ARTNET_PORTS + ARTNET_PORTS + 2] & 0x3;
+        // Reset data on port t
+        break;
+    }
+    }
+
+    this->SendPoll(1);
 }
 
 void ArtNet::processInput(byte ip[4], word port, const char *data, word len)
 {
-	// Read data
-	data += sizeof(artnetheader_t) + sizeof(ArtNetMagic);
-	unsigned char i;
-	
-	for (i = 0; i < MAX_PORTS; i++) {
-		if (this->ArtNetInputEnable[i] != (data[4 + i] & 1)) {
-			// Configure as input
-			if (this->ArtNetInputEnable[i] != (data[4 + i] & 1)) {
-				this->ArtNetInputEnable[i] = (data[4 + i] & 1) ? ARTNET_OUT : ARTNET_IN;
-				EEPROM.write(this->eepromaddress + 1 + 18 + 64 + MAX_PORTS + MAX_PORTS + i, this->ArtNetInputEnable[i]);
-			}
-			// Reconfigure port
-			if (data[4 + i] & 1) {
-			    // Port i - Input
-			} else {
-			    // Port i - Output
-			}
-		}
-	}
+    // Read data
+    data += sizeof(artnetheader_t) + sizeof(ArtNetMagic);
+    unsigned char i;
+
+    for (i = 0; i < MAX_PORTS; i++) {
+        if (this->ArtNetInputEnable[i] != (data[4 + i] & 1)) {
+            // Configure as input
+            if (this->ArtNetInputEnable[i] != (data[4 + i] & 1)) {
+                this->ArtNetInputEnable[i] = (data[4 + i] & 1) ? ARTNET_OUT : ARTNET_IN;
+                EEPROM.write(this->eepromaddress + 1 + 18 + 64 + MAX_PORTS + MAX_PORTS + i, this->ArtNetInputEnable[i]);
+            }
+            // Reconfigure port
+            if (data[4 + i] & 1) {
+                // Port i - Input
+            } else {
+                // Port i - Output
+            }
+        }
+    }
 }
 
 void ArtNet::sendIPProgReply(byte ip[4], word port)
@@ -403,7 +403,7 @@ void ArtNet::sendIPProgReply(byte ip[4], word port)
     // Node IP
     memcpy(&this->buffer[length], this->ip, 4);
     length += 4;
-    
+
     // Node subnet
     memset(&this->buffer[length], 0, 4);
     length += 4;
@@ -412,10 +412,10 @@ void ArtNet::sendIPProgReply(byte ip[4], word port)
     t16 = htons(UDP_PORT_ARTNET);
     memcpy(&this->buffer[length], &t16, 2);
     length += 2;
-    
+
     // Status (DHCP enabled?)
     this->buffer[length++] = this->dhcp;
-    
+
     // Spare/Filler
     memset(&this->buffer[length], 0, 7);
     length += 7;
@@ -430,168 +430,168 @@ void ArtNet::processIPProg(byte ip[4], word port, const char *data, word len)
     IPConfiguration type;
     const char *newip = 0;
     const char *subnet = 0;
-    
-	// Read data
-	data += sizeof(artnetheader_t) + sizeof(ArtNetMagic);
-	
-	// Process command
-	if (!(data[2] & (1 << 7))) {
-		// No programming enabled
-		this->sendIPProgReply(ip, port);
-		return;
-	}
-	
-	if (data[2] & (1 << 6)) {
-		// Enable DHCP
-		if (this->dhcp != 1)
-			type = DHCP;
-	}
-	
-	if (data[2] & (1 << 3)) {
-		// Set to default
-		type = PRIMARY;
-	}
-	
-	// Read four bytes
-	if (data[2] & (1 << 2)) {
-		newip = data + 4;
-	}
 
-	if (data[2] & (1 << 1)) {
-		subnet = data + 8;
-	}
-	
-	if (data[2] & 1) {
-		// Program port - ignore this for now
-	}
-	
-	// Set eeprom bit
-	EEPROM.write(this->eepromaddress + 1 + 18 + 64 + 1, 1);
-	for (i = 0; i < 4; ++i) {
-	    EEPROM.write(this->eepromaddress + 1 + 18 + 64 + 2 + MAX_PORTS + MAX_PORTS + MAX_PORTS + i, ip[i]);
-	}
-	for (i = 0; i < 2; ++i) {
-	    EEPROM.write(this->eepromaddress + 1 + 18 + 64 + 2 + MAX_PORTS + MAX_PORTS + MAX_PORTS + 4 + i, ((byte*)&port)[i]);
-	}
-	// Save (and reboot)
-	this->setIP(type, newip, subnet);
+    // Read data
+    data += sizeof(artnetheader_t) + sizeof(ArtNetMagic);
+
+    // Process command
+    if (!(data[2] & (1 << 7))) {
+        // No programming enabled
+        this->sendIPProgReply(ip, port);
+        return;
+    }
+
+    if (data[2] & (1 << 6)) {
+        // Enable DHCP
+        if (this->dhcp != 1)
+            type = DHCP;
+    }
+
+    if (data[2] & (1 << 3)) {
+        // Set to default
+        type = PRIMARY;
+    }
+
+    // Read four bytes
+    if (data[2] & (1 << 2)) {
+        newip = data + 4;
+    }
+
+    if (data[2] & (1 << 1)) {
+        subnet = data + 8;
+    }
+
+    if (data[2] & 1) {
+        // Program port - ignore this for now
+    }
+
+    // Set eeprom bit
+    EEPROM.write(this->eepromaddress + 1 + 18 + 64 + 1, 1);
+    for (i = 0; i < 4; ++i) {
+        EEPROM.write(this->eepromaddress + 1 + 18 + 64 + 2 + MAX_PORTS + MAX_PORTS + MAX_PORTS + i, ip[i]);
+    }
+    for (i = 0; i < 2; ++i) {
+        EEPROM.write(this->eepromaddress + 1 + 18 + 64 + 2 + MAX_PORTS + MAX_PORTS + MAX_PORTS + 4 + i, ((byte*)&port)[i]);
+    }
+    // Save (and reboot)
+    this->setIP(type, newip, subnet);
 }
 
 void ArtNet::ProcessPacket(byte ip[4], word port, const char *data, word len)
 {
-	artnetheader_t *header;
-	
-	if (strncmp(data, ArtNetMagic, 7) != 0) {
-		this->ArtNetFailCounter++;
-		return;
-	}
-	
-	this->ArtNetInCounter++;
+    artnetheader_t *header;
 
-	header = (artnetheader_t*)(data + sizeof(ArtNetMagic));
-    
+    if (strncmp(data, ArtNetMagic, 7) != 0) {
+        this->ArtNetFailCounter++;
+        return;
+    }
+
+    this->ArtNetInCounter++;
+
+    header = (artnetheader_t*)(data + sizeof(ArtNetMagic));
+
     if (header->protocol_lo < 14) {
-    	return;
+        return;
     }
 
     switch (header->opcode) {
 
-    	/* Input and Configuration */
-    	
-    	case ARTNET_OP_POLL:
-    		this->processPoll(ip, port, data, len);
-    		break;
-		case ARTNET_OP_OUTPUT:
-			{
-				unsigned short universe, length;
-				unsigned char i;
+    /* Input and Configuration */
 
-				// Read data
-				data += sizeof(artnetheader_t) + sizeof(ArtNetMagic);
-	
-			    universe = data[2] | (data[3] << 8);
-    
-			    // Length
-			    length = htons(data[4]);
-    
-			    for (i = 0; i < this->Ports; i++) {
-			    	if (this->ArtNetInputUniverse[i] == universe && this->ArtNetInputEnable[i] == ARTNET_IN) {
-			    		// Set Data for this output
-			    		// Port i - d[6 + j] (j = 0 to length)
-			    		this->callback(i, &data[6], length);
-			    	}
-			    }
-			}
-			break;
-		case ARTNET_OP_ADDRESS:
-			this->processAddress(ip, port, data, len);
-			break;
-		case ARTNET_OP_INPUT:
-			this->processInput(ip, port, data, len);
-			break;
-		case ARTNET_OP_IP_PROG:
-			this->processIPProg(ip, port, data, len);
-			break;
+    case ARTNET_OP_POLL:
+        this->processPoll(ip, port, data, len);
+        break;
+    case ARTNET_OP_OUTPUT:
+    {
+        unsigned short universe, length;
+        unsigned char i;
 
-		/* Undocumented - for manufacturer use (that's me!) */
+        // Read data
+        data += sizeof(artnetheader_t) + sizeof(ArtNetMagic);
 
-		case ARTNET_OP_MAC_MASTER:
-			break;
-		case ARTNET_OP_MAC_SLAVE:
-			break;
+        universe = data[2] | (data[3] << 8);
 
-		/* RDM - Currently unsupported */
+        // Length
+        length = htons(data[4]);
 
-		case ARTNET_OP_RDM:
-			break;
-		case ARTNET_OP_RDM_SUB:
-			break;
-		case ARTNET_OP_TOD_REQUEST:
-			break;
-		case ARTNET_OP_TOD_DATA:
-			break;
-		case ARTNET_OP_TOD_CONTROL:
-			break;
-			
-		/* Ignored broadcasted reply op codes */
-		
-		case ARTNET_OP_POLL_REPLY:
-			// Ignore replies
-		case ARTNET_OP_IP_PROG_REPLY:
-			// Ignore IP Programming replies
-		case ARTNET_OP_DIAG_DATA:
-			// Ignore diagnostics
-			break;
-			
-		/* Unsupported feature op codes */
-		
-		case ARTNET_OP_TIMECODE:
-			break;
+        for (i = 0; i < this->Ports; i++) {
+            if (this->ArtNetInputUniverse[i] == universe && this->ArtNetInputEnable[i] == ARTNET_IN) {
+                // Set Data for this output
+                // Port i - d[6 + j] (j = 0 to length)
+                this->callback(i, &data[6], length);
+            }
+        }
+    }
+    break;
+    case ARTNET_OP_ADDRESS:
+        this->processAddress(ip, port, data, len);
+        break;
+    case ARTNET_OP_INPUT:
+        this->processInput(ip, port, data, len);
+        break;
+    case ARTNET_OP_IP_PROG:
+        this->processIPProg(ip, port, data, len);
+        break;
 
-		case ARTNET_OP_FIRMWARE_MASTER:
-		case ARTNET_OP_FIRMWARE_REPLY:
-			// Don't have the capability to do OTW firmware update
-			break;
-			
-		case ARTNET_OP_VIDEO_SETUP:
-		case ARTNET_OP_VIDEO_PALETTE:
-		case ARTNET_OP_VIDEO_DATA:
-			// Ignore video data
-			break;
-			
-		case ARTNET_OP_MEDIA:
-		case ARTNET_OP_MEDIA_PATCH:
-		case ARTNET_OP_MEDIA_CONTROL:
-		case ARTNET_OP_MEDIA_CONTROL_REPLY:
-			// Ignore media data
-			break;
-		
-		/* Unknown op code */
-		
-		default:
-			ArtNetStatus = ARTNET_STATUS_PARSE_FAIL;
-			this->SendPoll(0);
-			return;
+    /* Undocumented - for manufacturer use (that's me!) */
+
+    case ARTNET_OP_MAC_MASTER:
+        break;
+    case ARTNET_OP_MAC_SLAVE:
+        break;
+
+    /* RDM - Currently unsupported */
+
+    case ARTNET_OP_RDM:
+        break;
+    case ARTNET_OP_RDM_SUB:
+        break;
+    case ARTNET_OP_TOD_REQUEST:
+        break;
+    case ARTNET_OP_TOD_DATA:
+        break;
+    case ARTNET_OP_TOD_CONTROL:
+        break;
+
+    /* Ignored broadcasted reply op codes */
+
+    case ARTNET_OP_POLL_REPLY:
+    // Ignore replies
+    case ARTNET_OP_IP_PROG_REPLY:
+    // Ignore IP Programming replies
+    case ARTNET_OP_DIAG_DATA:
+        // Ignore diagnostics
+        break;
+
+    /* Unsupported feature op codes */
+
+    case ARTNET_OP_TIMECODE:
+        break;
+
+    case ARTNET_OP_FIRMWARE_MASTER:
+    case ARTNET_OP_FIRMWARE_REPLY:
+        // Don't have the capability to do OTW firmware update
+        break;
+
+    case ARTNET_OP_VIDEO_SETUP:
+    case ARTNET_OP_VIDEO_PALETTE:
+    case ARTNET_OP_VIDEO_DATA:
+        // Ignore video data
+        break;
+
+    case ARTNET_OP_MEDIA:
+    case ARTNET_OP_MEDIA_PATCH:
+    case ARTNET_OP_MEDIA_CONTROL:
+    case ARTNET_OP_MEDIA_CONTROL_REPLY:
+        // Ignore media data
+        break;
+
+    /* Unknown op code */
+
+    default:
+        ArtNetStatus = ARTNET_STATUS_PARSE_FAIL;
+        this->SendPoll(0);
+        return;
     }
 }
 
@@ -601,49 +601,49 @@ void ArtNet::SendPoll(unsigned char force)
     size_t length = 0;
     unsigned int t16;
 
-	if (!force && !(this->ArtNetDiagnosticStatus & ARTNET_DIAGNOSTIC_ALWAYS)) {
-		// We are not forcing (i.e. not replying to ArtPoll) and not always sending updates
-		return;
-	}
-	
-	if (!force) {
-		// Increment the non-requested poll counter
-		this->ArtNetCounter++;
-	}
+    if (!force && !(this->ArtNetDiagnosticStatus & ARTNET_DIAGNOSTIC_ALWAYS)) {
+        // We are not forcing (i.e. not replying to ArtPoll) and not always sending updates
+        return;
+    }
 
-/*
- * 
-	if (this->ArtNetDiagnosticStatus & ARTNET_DIAGNOSTIC_BROADCAST) {
-		destIp = this->broadcastIP;
-	} else {
-		destIp = this->serverIP;
-	}
- *
- */
-	if (this->ArtNetDiagnosticStatus & ARTNET_DIAGNOSTIC_BROADCAST) {
-		destIp = this->serverIP;
-	} else {
-		destIp = this->broadcastIP;
-	}
- 
+    if (!force) {
+        // Increment the non-requested poll counter
+        this->ArtNetCounter++;
+    }
+
+    /*
+     *
+    	if (this->ArtNetDiagnosticStatus & ARTNET_DIAGNOSTIC_BROADCAST) {
+    		destIp = this->broadcastIP;
+    	} else {
+    		destIp = this->serverIP;
+    	}
+     *
+     */
+    if (this->ArtNetDiagnosticStatus & ARTNET_DIAGNOSTIC_BROADCAST) {
+        destIp = this->serverIP;
+    } else {
+        destIp = this->broadcastIP;
+    }
+
     // Magic
     memcpy(&this->buffer[length], ArtNetMagic, sizeof(ArtNetMagic));
     length += sizeof(ArtNetMagic);
-    
+
     // Op code
     t16 = ARTNET_OP_POLL_REPLY;
     memcpy(&this->buffer[length], &t16, 2);
     length += 2;
-    
+
     // Transmit IP
     memcpy(&this->buffer[length], this->ip, 4);
     length += 4;
-    
+
     // Port
     t16 = UDP_PORT_ARTNET;
     memcpy(&this->buffer[length], &t16, 2);
     length += 2;
-    
+
     // Version
     t16 = htons(14);
     memcpy(&this->buffer[length], &t16, 2);
@@ -653,25 +653,25 @@ void ArtNet::SendPoll(unsigned char force)
     t16 = htons(this->ArtNetSubnet);
     memcpy(&this->buffer[length], &t16, 2);
     length += 2;
-    
+
     // OEM
     this->buffer[length++] = OEM_HI;
     this->buffer[length++] = OEM_LO;
-    
+
     // UBEA
     this->buffer[length++] = 0;
-    
+
     // Status 1
     this->buffer[length] = 0x3 << 6; // Indicators in Normal mode
     this->buffer[length] = this->buffer[length] | (0x2 << 4); // Universe programmed by network
     // t8 = t8 | (0x1 << 1); // RDM capable
     ++length;
-    
+
     // ESTA (YD)
     t16 = 0x5944;
     memcpy(&this->buffer[length], &t16, 2);
     length += 2;
-    
+
     // Names
     {
         // Short name (18 bytes)
@@ -681,18 +681,18 @@ void ArtNet::SendPoll(unsigned char force)
         for (t16 = 0; t16 < 64; ++t16)
             this->buffer[length++] = EEPROM.read(this->eepromaddress + 1 + 18 + t16);
     }
-    
+
     // Report
     {
         snprintf((char*)&this->buffer[length], 64, "#%x %d %s", this->ArtNetStatus, this->ArtNetCounter, this->ArtNetStatusString);
         length += 64;
     }
-    
+
     // Number of DMX ports
     t16 = htons(this->Ports);
     memcpy(&this->buffer[length], &t16, 2);
     length += 2;
-    
+
     // Port Configuration
     // Port 1-4
     for (t16 = 0; t16 < this->Ports; ++t16) {
@@ -701,7 +701,7 @@ void ArtNet::SendPoll(unsigned char force)
     for (; t16 < 4; ++t16) {
         this->buffer[length++] = 0;
     }
-    
+
     // Port input status
     for (t16 = 0; t16 < this->Ports; ++t16) {
         this->buffer[length++] = ArtNetInputPortStatus[t16];
@@ -709,7 +709,7 @@ void ArtNet::SendPoll(unsigned char force)
     for (; t16 < 4; ++t16) {
         this->buffer[length++] = 0;
     }
-    
+
     // Port output status
     for (t16 = 0; t16 < this->Ports; ++t16) {
         this->buffer[length++] = ArtNetOutputPortStatus[t16];
@@ -717,7 +717,7 @@ void ArtNet::SendPoll(unsigned char force)
     for (; t16 < 4; ++t16) {
         this->buffer[length++] = 0;
     }
-    
+
     // Port input universe
     for (t16 = 0; t16 < this->Ports; ++t16) {
         this->buffer[length++] = ArtNetInputUniverse[t16];
@@ -725,7 +725,7 @@ void ArtNet::SendPoll(unsigned char force)
     for (; t16 < 4; ++t16) {
         this->buffer[length++] = 0;
     }
-    
+
     // Port output universe
     for (t16 = 0; t16 < this->Ports; ++t16) {
         this->buffer[length++] = ArtNetOutputUniverse[t16];
@@ -733,30 +733,30 @@ void ArtNet::SendPoll(unsigned char force)
     for (; t16 < 4; ++t16) {
         this->buffer[length++] = 0;
     }
-    
+
     // Video, Macro and Remote followed by three spare and Style (StNode = 0)
     memset(&this->buffer[length], 0, 1 + 1 + 1 + 3 + 1);
     length += 1 + 1 + 1 + 3 + 1;
-    
+
     {
         // MAC Address
         memcpy(&this->buffer[length], this->mac, 6);
         length += 6;
     }
-    
+
     // Bind IP, set to the same as self IP
     memcpy(&this->buffer[length], this->ip, 4);
     length += 4;
-    
+
     // Bind Index - Root node, so 0
     this->buffer[length++] = 0;
-    
+
     // Status 2
     this->buffer[length] = 1; // Web browser configuration supported
     this->buffer[length] = this->buffer[length] | (this->dhcp << 1); // DHCP is enabled
     this->buffer[length] = this->buffer[length] | (1 << 2); // DHCP supported
     ++length;
-    
+
     // Filler
     memset(&this->buffer[length], 0, 26);
     length += 26;
