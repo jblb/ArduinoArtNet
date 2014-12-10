@@ -18,10 +18,10 @@
 #define DEFAULT_START_ADDRESS 0
 #define PORTS 1 // Number of ports to use
 #define CHIPSET WS2801  // #define CHIPSET TM1809
-#define COLOUR_ORDER RGB
+#define COLOUR_ORDER GRB
 
-#define DATA_PIN 2
-#define CLOCK_PIN 3
+#define DATA_PIN 3
+#define CLOCK_PIN 4
 
 CRGB *leds;
 
@@ -110,6 +110,10 @@ static void callback(unsigned short port, const char *buffer, unsigned short len
 #ifdef verbose
     Serial.print(F("\nReceving DMX data for port: "));
     Serial.println(port);
+    Serial.print(F("\nlength: "));
+    Serial.println(length);
+    Serial.print(F(" StartAddress: "));
+    Serial.println(config.startAddress);
 #endif
     if (length < config.startAddress) return;
     if (port != 0) return;
@@ -121,12 +125,6 @@ static void callback(unsigned short port, const char *buffer, unsigned short len
         leds[i].r = buffer[i * 3];
         leds[i].g = buffer[i * 3 + 1];
         leds[i].b = buffer[i * 3 + 2];
-#ifdef verbose
-		Serial.print(F("\nled["));
-		Serial.print(i);
-		Serial.print(F("].r: "));
-		Serial.println(leds[i].r);
-#endif        
     }
     FastSPI_LED.show();
 }

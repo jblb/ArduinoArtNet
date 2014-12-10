@@ -512,7 +512,8 @@ void ArtNet::ProcessPacket(byte ip[4], word port, const char *data, word len)
         universe = data[2] | (data[3] << 8);
 
         // Length
-        length = htons(data[4]);
+        // length = htons(data[4]);
+        length = data[5] + (0x100 * data[4]);
 
         for (i = 0; i < this->Ports; i++) {
             if (this->ArtNetInputUniverse[i] == universe && this->ArtNetInputEnable[i] == ARTNET_IN) {
