@@ -15,10 +15,11 @@
 
 //define verbose to print messages to serial
 // #define verbose 1;
+#define verbose_callback
 
 #define DEFAULT_NUM_LEDS 128
 #define DEFAULT_START_ADDRESS 0
-#define PORTS 1 // Number of ports to use
+#define PORTS 2 // Number of ports to use
 #define CHIPSET WS2801  // #define CHIPSET TM1809
 #define COLOUR_ORDER RGB
 
@@ -109,7 +110,7 @@ static void artSend(size_t length, word sport, byte *dip, word dport)
 
 static void callback(unsigned short port, const char *buffer, unsigned short length)
 {
-#ifdef verbose
+#ifdef verbose_callback
     Serial.print(F("\nReceving DMX data for port: "));
     Serial.println(port);
     Serial.print(F("\nlength: "));
@@ -149,10 +150,10 @@ static void artnetPacket(word port, byte ip[4], const char *data, word len) {
 }
 
 void setup() {
-#ifdef verbose
+ // #ifdef verbose
     Serial.begin(57600);
     Serial.println(F("\nBooting"));
-#endif
+ // #endif
     pinMode(LED,OUTPUT);	//
     digitalWrite(LED,LOW); 	// LED On
 
@@ -161,6 +162,15 @@ void setup() {
     Serial.println(F("Loading configuration"));
 #endif
     loadConfig();
+    char longName[65] = {0};
+    artnet.GetLongName(longName);
+    Serial.print(F("Name: "));
+    Serial.println(longName);
+	Serial.print(F("Universe(0): "));
+	Serial.println(artnet.GetInputUniverse(0));
+	Serial.print(F("Universe(1): "));
+	Serial.println(artnet.GetInputUniverse(1));
+   
 
     // Setup LEDS
 #ifdef verbose
@@ -269,7 +279,7 @@ void setup() {
 
 char statusPage[] PROGMEM =
     "HTTP/1.0 200 Ok\r\n"
-    "Content-Type: text/html\r\n"
+    "Content-Type: text/html; charset=UTF-8\r\n"
     "Pragma: no-cache\r\n"
     "\r\n"
     "<html>"
@@ -287,7 +297,7 @@ char statusPage[] PROGMEM =
 
 char ipPage[] PROGMEM =
     "HTTP/1.0 200 Ok\r\n"
-    "Content-Type: text/html\r\n"
+    "Content-Type: text/html; charset=UTF-8\r\n"
     "Pragma: no-cache\r\n"
     "\r\n"
     "<html>"
@@ -312,7 +322,7 @@ char ipPage[] PROGMEM =
 
 char artnetPage[] PROGMEM =
     "HTTP/1.0 200 Ok\r\n"
-    "Content-Type: text/html\r\n"
+    "Content-Type: text/html; charset=UTF-8\r\n"
     "Pragma: no-cache\r\n"
     "\r\n"
     "<html>"
@@ -326,7 +336,8 @@ char artnetPage[] PROGMEM =
     "Short Name:<input type='text' name='shortname' value='%s'><p/>"
     "Long Name:<input type='text' name='longname' value='%s'><p/>"
     "ArtNet Subnet:<input type='text' name='subnet' value='%d'><p/>"
-    "Universe:<input type='text' name='universe' value='%d'><p/>"
+    "Universe 1:<input type='text' name='universe0' value='%d'><p/>"
+    "Universe 2:<input type='text' name='universe1' value='%d'><p/>"
     "<input type='submit'>"
     "</form>"
     "</body>"
@@ -334,7 +345,7 @@ char artnetPage[] PROGMEM =
 
 char ledPage[] PROGMEM =
     "HTTP/1.0 200 Ok\r\n"
-    "Content-Type: text/html\r\n"
+    "Content-Type: text/html; charset=UTF-8\r\n"
     "Pragma: no-cache\r\n"
     "\r\n"
     "<html>"
@@ -378,7 +389,8 @@ void sendArtNetPage() {
                                    shortName,
                                    longName,
                                    artnet.GetSubnet(),
-                                   artnet.GetInputUniverse(0));
+                                   artnet.GetInputUniverse(0),
+                                   artnet.GetInputUniverse(1));
     ether.httpServerReply(len);
 }
 
@@ -446,7 +458,8 @@ void loop() {
             sendLEDPage();
         } else if (strncmp("GET /artnet?", (const char *)(Ethernet::buffer + pos), 12) == 0) {
             // Save settings
-            artnet.SetInputUniverse(0, getIntArg((const char *)(Ethernet::buffer + pos + 11), "universe", artnet.GetInputUniverse(0)));
+            artnet.SetInputUniverse(0, getIntArg((const char *)(Ethernet::buffer + pos + 11), "universe0", artnet.GetInputUniverse(0)));
+			artnet.SetInputUniverse(1, getIntArg((const char *)(Ethernet::buffer + pos + 11), "universe1", artnet.GetInputUniverse(1)));
             artnet.SetSubnet(getIntArg((const char *)(Ethernet::buffer + pos + 11), "subnet", artnet.GetSubnet()));
             setShortName((const char *)(Ethernet::buffer + pos + 11), "shortname");
             setLongName((const char *)(Ethernet::buffer + pos + 11), "longname");
