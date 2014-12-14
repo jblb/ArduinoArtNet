@@ -150,10 +150,10 @@ static void artnetPacket(word port, byte ip[4], const char *data, word len) {
 }
 
 void setup() {
- // #ifdef verbose
+// #ifdef verbose
     Serial.begin(57600);
     Serial.println(F("\nBooting"));
- // #endif
+// #endif
     pinMode(LED,OUTPUT);	//
     digitalWrite(LED,LOW); 	// LED On
 
@@ -166,11 +166,11 @@ void setup() {
     artnet.GetLongName(longName);
     Serial.print(F("Name: "));
     Serial.println(longName);
-	Serial.print(F("Universe(0): "));
-	Serial.println(artnet.GetInputUniverse(0));
-	Serial.print(F("Universe(1): "));
-	Serial.println(artnet.GetInputUniverse(1));
-   
+    Serial.print(F("Universe(0): "));
+    Serial.println(artnet.GetInputUniverse(0));
+    Serial.print(F("Universe(1): "));
+    Serial.println(artnet.GetInputUniverse(1));
+
 
     // Setup LEDS
 #ifdef verbose
@@ -459,7 +459,7 @@ void loop() {
         } else if (strncmp("GET /artnet?", (const char *)(Ethernet::buffer + pos), 12) == 0) {
             // Save settings
             artnet.SetInputUniverse(0, getIntArg((const char *)(Ethernet::buffer + pos + 11), "universe0", artnet.GetInputUniverse(0)));
-			artnet.SetInputUniverse(1, getIntArg((const char *)(Ethernet::buffer + pos + 11), "universe1", artnet.GetInputUniverse(1)));
+            artnet.SetInputUniverse(1, getIntArg((const char *)(Ethernet::buffer + pos + 11), "universe1", artnet.GetInputUniverse(1)));
             artnet.SetSubnet(getIntArg((const char *)(Ethernet::buffer + pos + 11), "subnet", artnet.GetSubnet()));
             setShortName((const char *)(Ethernet::buffer + pos + 11), "shortname");
             setLongName((const char *)(Ethernet::buffer + pos + 11), "longname");

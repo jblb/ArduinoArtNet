@@ -7,14 +7,22 @@
 #include <FastLED.h>  // http://fastled.io/
 #include "ArtNetLED.h"
 
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+
 #ifdef NANODE
 #include <NanodeMAC.h>  // github.com/thiseldo/NanodeMAC.git
 #endif
 
 #define LED 6	//LED + resitor connected to +5V from output 6
 
+/**/
 //define verbose to print messages to serial
 // #define verbose 1;
+#define LCD_DISP
+
+/**/
 
 #define DEFAULT_NUM_LEDS 128
 #define DEFAULT_START_ADDRESS 0
@@ -52,6 +60,10 @@ NanodeMAC mac( mymac );
 #endif
 
 ArtNet artnet(mymac, sizeof(config) + 1, Ethernet::buffer + UDP_DATA_P, sizeof(Ethernet::buffer) - UDP_DATA_P, setIP, artSend, callback, PORTS);
+
+#ifdef LCD_DISP
+LiquidCrystal_I2C lcd(0x38,16,2);  // set the LCD address to 0x38 for a 16 chars and 2 line display
+#endif
 
 // Calling 0 breaks the processor causing it to soft reset
 void(* resetFunc) (void) = 0;
@@ -155,12 +167,24 @@ void setup() {
 #endif
     pinMode(LED,OUTPUT);	//
     digitalWrite(LED,LOW); 	// LED On
+#ifdef LCD_DISP
+    lcd.init();                      // initialize the lcd
+    lcd.backlight();
+#endif
+
 
     // Load configuration
 #ifdef verbose
     Serial.println(F("Loading configuration"));
 #endif
     loadConfig();
+
+#ifdef LCD_DISP
+    char shortName[19] = {0};
+    artnet.GetShortName(shortName);
+    lcd.print(shortName);
+#endif
+
 
     // Setup LEDS
 #ifdef verbose
@@ -265,6 +289,17 @@ void setup() {
 
     ether.enableBroadcast();
     ether.udpServerListenOnPort(&artnetPacket, UDP_PORT_ARTNET);
+
+#ifdef LCD_DISP
+    // print ip on LCD
+    lcd.setCursor(0,1);
+    for (uint8_t i = 0; i < 4; ++i) {
+        lcd.print(ether.myip[i], DEC );
+        if (i < 3)
+            lcd.print('.');
+    }
+#endif
+
 }
 
 char statusPage[] PROGMEM =
