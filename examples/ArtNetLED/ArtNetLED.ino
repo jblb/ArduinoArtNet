@@ -7,10 +7,6 @@
 #include <FastLED.h>  // http://fastled.io/
 #include "ArtNetLED.h"
 
-#include <Wire.h>
-#include <LiquidCrystal_I2C.h>
-
-
 #ifdef NANODE
 #include <NanodeMAC.h>  // github.com/thiseldo/NanodeMAC.git
 #endif
@@ -19,10 +15,15 @@
 
 /**/
 //define verbose to print messages to serial
-// #define verbose 1;
-#define LCD_DISP
+#define verbose 1;
+// #define LCD_DISP
 
 /**/
+
+#ifdef LCD_DISP
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#endif
 
 #define DEFAULT_NUM_LEDS 128
 #define DEFAULT_START_ADDRESS 0
@@ -59,7 +60,7 @@ struct Config {
 NanodeMAC mac( mymac );
 #endif
 
-ArtNet artnet(mymac, sizeof(config) + 1, Ethernet::buffer + UDP_DATA_P, sizeof(Ethernet::buffer) - UDP_DATA_P, setIP, artSend, callback, PORTS);
+ArtNet artnet(mymac, sizeof(config) + 3, Ethernet::buffer + UDP_DATA_P, sizeof(Ethernet::buffer) - UDP_DATA_P, setIP, artSend, callback, PORTS);
 
 #ifdef LCD_DISP
 LiquidCrystal_I2C lcd(0x38,16,2);  // set the LCD address to 0x38 for a 16 chars and 2 line display
@@ -159,7 +160,15 @@ static void artnetPacket(word port, byte ip[4], const char *data, word len) {
     digitalWrite(LED,!digitalRead(LED));
     artnet.ProcessPacket(ip, port, data, len);
 }
-
+void colorWipe_up (struct CRGB rgb){
+// display a moving lamp 
+  for (int i=0; i < config.connectedLEDs; i++) {
+    //Serial.println(i);
+    leds[i]=rgb;
+    FastSPI_LED.show();
+    delay(10);
+  }
+}
 void setup() {
 #ifdef verbose
     Serial.begin(57600);
@@ -199,7 +208,11 @@ void setup() {
 #endif
     memset(leds, 0, sizeof(CRGB) * config.connectedLEDs);
     FastLED.show();
-
+// display colors 
+	colorWipe_up (CRGB::Red);
+	colorWipe_up(CRGB::Green);
+	colorWipe_up (CRGB::Blue);
+	colorWipe_up(CRGB::Black);
     // Startup ethernet
 #ifdef verbose
     Serial.println(F("Initialising ENC28J60"));

@@ -174,7 +174,9 @@ void ArtNet::Configure(byte dhcp, byte* ip)
 
     this->ip = ip;
     this->dhcp = dhcp;
-
+    
+	//todo change broadcast adress
+	
     if (EEPROM.read(eepromaddress + 1 + 18 + 64 + 1) == 1) {
         // Reboot due to IP change
         EEPROM.write(eepromaddress + 1 + 18 + 64 + 1, 0);
@@ -510,7 +512,6 @@ void ArtNet::ProcessPacket(byte ip[4], word port, const char *data, word len)
         data += sizeof(artnetheader_t) + sizeof(ArtNetMagic);
 
         universe = data[2] | (data[3] << 8);
-
         // Length
         // length = htons(data[4]);
         length = data[5] + (0x100 * data[4]);
