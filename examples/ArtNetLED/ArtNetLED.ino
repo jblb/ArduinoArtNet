@@ -315,7 +315,7 @@ void setup() {
 
 }
 
-char statusPage[] PROGMEM =
+const char statusPage[] PROGMEM =
     "HTTP/1.0 200 Ok\r\n"
     "Content-Type: text/html\r\n"
     "Pragma: no-cache\r\n"
@@ -333,7 +333,7 @@ char statusPage[] PROGMEM =
     "</body>"
     "</html>";
 
-char ipPage[] PROGMEM =
+const char ipPage[] PROGMEM =
     "HTTP/1.0 200 Ok\r\n"
     "Content-Type: text/html\r\n"
     "Pragma: no-cache\r\n"
@@ -358,7 +358,7 @@ char ipPage[] PROGMEM =
     "</body>"
     "</html>";
 
-char artnetPage[] PROGMEM =
+const char artnetPage[] PROGMEM =
     "HTTP/1.0 200 Ok\r\n"
     "Content-Type: text/html\r\n"
     "Pragma: no-cache\r\n"
@@ -380,7 +380,7 @@ char artnetPage[] PROGMEM =
     "</body>"
     "</html>";
 
-char ledPage[] PROGMEM =
+const char ledPage[] PROGMEM =
     "HTTP/1.0 200 Ok\r\n"
     "Content-Type: text/html\r\n"
     "Pragma: no-cache\r\n"
